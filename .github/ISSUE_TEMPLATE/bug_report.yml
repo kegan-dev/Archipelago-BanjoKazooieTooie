@@ -1,0 +1,65 @@
+name: Bug report
+description: Something broke in the game, the client, or a seed's generation.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for testing! A quick search of the open issues first saves everyone a duplicate.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you were doing, where (which level or map), and what went wrong.
+    validations:
+      required: true
+  - type: dropdown
+    id: game
+    attributes:
+      label: Which game
+      options:
+        - Banjo-Tooie
+        - Banjo-Kazooie
+        - Going through a door between them
+        - Not in a game (the client, generating, hosting)
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected instead
+  - type: input
+    id: version
+    attributes:
+      label: World version
+      description: The release you installed. It's also in the ROM's name, like `Banjo-Kazooie & Tooie AP 0.1.0.z64`.
+      placeholder: "0.1.0"
+    validations:
+      required: true
+  - type: input
+    id: archipelago
+    attributes:
+      label: Archipelago version
+      placeholder: "0.6.8"
+  - type: dropdown
+    id: emulator
+    attributes:
+      label: Emulator
+      options:
+        - Project64 3.0.1
+        - ares v148
+        - Something else (say which below)
+    validations:
+      required: true
+  - type: textarea
+    id: files
+    attributes:
+      label: Client log and yaml
+      description: >
+        The newest `BanjoKazooieTooieClient_...txt` from the `logs` folder in your Archipelago folder, and your yaml.
+        Drag the files in here. The spoiler log helps for generation and logic bugs.
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else
+      description: Screenshots or a clip if something looks wrong.

@@ -1,0 +1,77 @@
+name: tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    name: Archipelago ${{ matrix.archipelago }}, Python ${{ matrix.python }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        archipelago: ["0.6.8"]
+        python: ["3.12"]
+    steps:
+      - name: This world
+        uses: actions/checkout@v6.0.2
+        with:
+          path: world
+
+      - name: The Banjo-Kazooie world it layers in
+        uses: actions/checkout@v6.0.2
+        with:
+          repository: kegan-dev/Archipelago-BanjoKazooie
+          path: bk
+
+      - name: Banjo-Tooie AP V4.13.1, the world it builds on
+        uses: actions/checkout@v6.0.2
+        with:
+          repository: jjjj12212/Archipelago-BanjoTooie
+          ref: V4.13.1
+          path: bt
+
+      - name: Archipelago ${{ matrix.archipelago }}
+        uses: actions/checkout@v6.0.2
+        with:
+          repository: ArchipelagoMW/Archipelago
+          ref: ${{ matrix.archipelago }}
+          path: Archipelago
+
+      - name: Python ${{ matrix.python }}
+        uses: actions/setup-python@v6.2.0
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Put the three worlds into Archipelago
+        run: |
+          cp -r world/worlds/banjo_kazooie_tooie Archipelago/worlds/
+          cp -r bk/worlds/banjo_kazooie Archipelago/worlds/
+          cp -r bt/worlds/banjo_tooie Archipelago/worlds/
+          # V4.13.1's requirements.txt has no final newline, which a general test checks in every world folder
+          printf '\n' >> Archipelago/worlds/banjo_tooie/requirements.txt
+
+      - name: Archipelago's dependencies
+        working-directory: Archipelago
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r ci-requirements.txt
+          python ModuleUpdate.py --yes --force
+          python Launcher.py --update_settings
+
+      - name: The world's tests
+        working-directory: Archipelago
+        run: python -m pytest worlds/banjo_kazooie_tooie -q
+
+      - name: Archipelago's general tests, on this world
+        working-directory: Archipelago
+        env:
+          # With banjo_kazooie too: it loads first and imports the generic world, as in a real install, where every
+          # built-in world loads before an .apworld
+          AP_TEST_WORLDS: banjo_kazooie,banjo_kazooie_tooie
+        run: python -m pytest test/general -q

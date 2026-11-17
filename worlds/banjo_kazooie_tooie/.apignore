@@ -1,0 +1,3 @@
+# Left out of the .apworld that Archipelago's "Build APWorlds" makes (tools/make_apworlds.py): the tests, which
+# need the repository (roms/, the other worlds' sources) and are no use to a player
+/test/

@@ -1,0 +1,14 @@
+# ROMs and patched ROMs: never commit game data
+roms/
+*.z64
+*.n64
+*.v64
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Builds
+*.apworld
+dist/

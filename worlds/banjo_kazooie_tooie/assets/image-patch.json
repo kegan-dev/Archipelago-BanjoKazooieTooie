@@ -1,0 +1,13 @@
+{
+ "format": 1,
+ "image_sha1": "7516e9efe700d1eaa1f34e0c4709efd13a56477b",
+ "bk_rom_sha1": "120309c758358c32f51f968bedc4e393d57d4d8f",
+ "tooie": {
+  "rom_sha1": "a4e44fa3f30d2bf2ef3aefe03aea8a87539d8ac2",
+  "patch_sha1": "3f09679c45ee30abed70289703853640e8d0c4b3",
+  "retail_md5": "40e98faa24ac3ebe1d25cb5e5ddf49e4"
+ },
+ "payload_sha1": "45fffe539690460da9673960a409f468a8c12458",
+ "info_block_sha1": "0f4d21364a8067bef455838f716ca0354e022f92",
+ "header_name": "BK & Tooie AP"
+}

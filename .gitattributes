@@ -1,0 +1,2 @@
+# The patch files are checked by their hash: never convert their line endings
+worlds/banjo_kazooie_tooie/assets/** -text
