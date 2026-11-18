@@ -71,7 +71,5 @@ jobs:
       - name: Archipelago's general tests, on this world
         working-directory: Archipelago
         env:
-          # With banjo_kazooie too: it loads first and imports the generic world, as in a real install, where every
-          # built-in world loads before an .apworld
-          AP_TEST_WORLDS: banjo_kazooie,banjo_kazooie_tooie
+          AP_TEST_WORLDS: banjo_kazooie_tooie
         run: python -m pytest test/general -q

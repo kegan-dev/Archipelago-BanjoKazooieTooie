@@ -24,13 +24,18 @@ import importlib.util
 import json
 import os
 import sys
-from typing import Any, Dict, Tuple
+from typing import Any, Dict, List, Tuple
 
 from worlds import LauncherComponents
 from worlds.AutoWorld import AutoWorldRegister
 
 WORLD_INIT = "__world__.py"
 WORLD_MANIFEST = "__world__.json"
+
+
+def _within(module: str, package: str) -> bool:
+    """Whether the module `module` is the package `package` or one of its submodules."""
+    return module == package or module.startswith(package + ".")
 
 
 def _read(loader: Any, path: str) -> bytes:
@@ -68,17 +73,31 @@ def carry(name: str, world: str, game: str) -> type:
     package.__path__ = [folder]
     package.__file__ = init_path
     registry: Dict[str, type] = {}
+    components: List[Any] = []
     saved = AutoWorldRegister.world_types, LauncherComponents.components, LauncherComponents.icon_paths
     AutoWorldRegister.world_types = registry
-    LauncherComponents.components = []
+    LauncherComponents.components = components
     LauncherComponents.icon_paths = {}
     try:
         exec(compile(source, init_path, "exec"), package.__dict__)
     finally:
         AutoWorldRegister.world_types, LauncherComponents.components, LauncherComponents.icon_paths = saved
-    if list(registry) != [game]:
-        raise ImportError(f"{name}: running {world}'s __init__ made the worlds {sorted(registry)}, not {game!r} alone")
-    world_class = registry[game]
+    # A module the carried world imports for the first time registers into the stand-ins too: the generic world
+    # ("Archipelago", worlds/generic), which a world's rules import, when no world loaded before this one imported it
+    # (Archipelago loads the worlds in name order, and an AP_TEST_WORLDS run may load none of them; an installed
+    # apworld loads after every built-in world). That registration is a real one: it goes to Archipelago's registry and
+    # Launcher. Only what the carried world's own modules define stays out.
+    ours = {key: cls for key, cls in registry.items() if _within(cls.__module__, name)}
+    for key, cls in registry.items():
+        if key not in ours:
+            AutoWorldRegister.world_types.setdefault(key, cls)
+    for component in components:
+        func = getattr(component, "func", None)
+        if func is not None and not _within(getattr(func, "__module__", None) or "", name):
+            LauncherComponents.components.append(component)
+    if list(ours) != [game]:
+        raise ImportError(f"{name}: running {world}'s __init__ made the worlds {sorted(ours)}, not {game!r} alone")
+    world_class = ours[game]
     from Utils import tuplize_version
     world_class.world_version = tuplize_version(manifest.get("world_version", "0.0.0"))
     world_class.manifest = manifest
